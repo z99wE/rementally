@@ -184,8 +184,8 @@ export function InteractiveSpace() {
     qualityDebounce = setTimeout(async () => {
       try {
         const [qualityResult, sentimentResult] = await Promise.all([
-          api.post('/api/smart/score', { content: text }),
-          api.post('/api/smart/sentiment', { content: text }).catch(() => null)
+          api.post('/smart/score', { content: text }),
+          api.post('/smart/sentiment', { content: text }).catch(() => null)
         ]);
         const s = qualityResult.score;
         if (s) {

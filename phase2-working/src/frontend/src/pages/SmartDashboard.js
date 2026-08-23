@@ -116,7 +116,7 @@ export function SmartDashboard() {
 
 async function loadDashboard(container) {
   try {
-    const data = await api.get('/api/smart/dashboard');
+    const data = await api.get('/smart/dashboard');
 
     renderOverloadPredictor(container, data.overload);
     renderEnergyCurve(container, data.energy);
@@ -309,7 +309,7 @@ function renderCognitiveDebt(container, escalations) {
   listEl.querySelectorAll('.escalation-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       try {
-        const result = await api.post('/api/smart/escalations/act', { thoughtId: btn.dataset.thought, action: btn.dataset.action });
+        const result = await api.post('/smart/escalations/act', { thoughtId: btn.dataset.thought, action: btn.dataset.action });
         if (result.success) { btn.closest('.surface-card').style.opacity = '0.4'; btn.closest('.surface-card').style.pointerEvents = 'none'; }
       } catch (e) { console.error('Escalation action failed:', e); }
     });

@@ -185,7 +185,7 @@ async function loadHomeStats(container) {
     api.get('/memory/stats'),
     api.get('/billing/status'),
     api.get('/memory?limit=5'),
-    api.get('/api/smart/social-proof').catch(() => null),
+    api.get('/smart/social-proof').catch(() => null),
   ]);
 
   const statsEl = container.querySelector('#home-stats');
