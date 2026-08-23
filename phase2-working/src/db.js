@@ -555,7 +555,70 @@ async function runMigrations(retries = 5) {
 	      }
 	    }
 
-	    // ── User Channel ID mapping (global bot recognition) ────────────────────
+	    // ── Cognitive Sprints (Adaptive Focus Periods) ────────────────────────
+    // Sprint sessions track energy-aware focus periods with ML-calibrated durations.
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS cognitive_sprints (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        thought_id UUID REFERENCES memory_graph(id) ON DELETE SET NULL,
+        status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'paused', 'completed', 'abandoned')),
+        recommended_minutes INT NOT NULL,
+        actual_minutes INT DEFAULT 0,
+        energy_at_start FLOAT DEFAULT 0.5,
+        energy_at_end FLOAT,
+        completed_thoughts INT DEFAULT 0,
+        interruption_count INT DEFAULT 0,
+        focus_score FLOAT DEFAULT 0,
+        peak_detected BOOLEAN DEFAULT false,
+        metadata JSONB DEFAULT '{}',
+        started_at TIMESTAMPTZ DEFAULT NOW(),
+        ended_at TIMESTAMPTZ
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_cs_user ON cognitive_sprints(user_id)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_cs_status ON cognitive_sprints(user_id, status)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_cs_started ON cognitive_sprints(user_id, started_at)');
+
+    // ── Achievements (Behavior-Change Milestones) ─────────────────────────
+    // Achievements reward behavior change, not app usage. No login streaks, no spam.
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS achievements (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        achievement_key VARCHAR(100) NOT NULL,
+        category VARCHAR(50) NOT NULL CHECK (category IN ('focus', 'quality', 'consistency', 'cognitive', 'social')),
+        title VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        icon VARCHAR(50) DEFAULT 'emoji_events',
+        unlocked_at TIMESTAMPTZ DEFAULT NOW(),
+        metadata JSONB DEFAULT '{}',
+        UNIQUE(user_id, achievement_key)
+      )
+    `);
+    await client.query('CREATE INDEX IF NOT EXISTS idx_ach_user ON achievements(user_id)');
+    await client.query('CREATE INDEX IF NOT EXISTS idx_ach_category ON achievements(user_id, category)');
+
+    // ── Sprint Stats (Aggregated ML Data) ─────────────────────────────────
+    // Stores computed metrics for the achievement system to query efficiently.
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_sprint_stats (
+        user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        total_sprints INT DEFAULT 0,
+        total_focus_minutes INT DEFAULT 0,
+        avg_focus_score FLOAT DEFAULT 0,
+        longest_sprint_minutes INT DEFAULT 0,
+        best_energy_at_start FLOAT DEFAULT 0,
+        peak_hours_detected JSONB DEFAULT '[]',
+        cognitive_debt_cleared INT DEFAULT 0,
+        thoughts_completed_in_sprints INT DEFAULT 0,
+        consecutive_sprint_days INT DEFAULT 0,
+        last_sprint_date DATE,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+
+    // ── User Channel ID mapping (global bot recognition) ────────────────────
 	    // Maps platform-specific user IDs (Telegram chat_id, Discord user_id, etc.)
 	    // to ReMentally user UUIDs so global bots can recognize inbound messages.
 	    await client.query(`

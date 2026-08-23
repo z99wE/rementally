@@ -23,6 +23,8 @@ import { Legal } from './pages/Legal.js';
 import { MapMyMind } from './pages/MapMyMind.js';
 import { Profile } from './pages/Profile.js';
 import { SmartDashboard } from './pages/SmartDashboard.js';
+import { CognitiveSprints } from './pages/CognitiveSprints.js';
+import { Achievements } from './pages/Achievements.js';
 import { initSpecularButtons } from './components/specularButton.js';
 import { initEnhancements } from './enhance.js';
 
@@ -57,6 +59,8 @@ const pageRegistry = {
 
   // Public / Other
   'smart-dashboard':   { title: 'Smart Dashboard', icon: 'psychology',     auth: true,  section: 'analytics' },
+  'cognitive-sprints':  { title: 'Cognitive Sprints',icon: 'speed',         auth: true,  section: 'analytics' },
+  achievements:         { title: 'Achievements',    icon: 'emoji_events',   auth: true,  section: 'analytics' },
   'how-it-works':      { title: 'How It Works',    icon: 'play_circle',    auth: false, section: 'main' },
   legal:               { title: 'Legal',           icon: 'gavel',          auth: false, section: 'other' },
   auth:                { title: 'Sign In',         icon: 'login',          auth: false, section: 'hidden' },
@@ -78,7 +82,9 @@ const pageFactories = {
   'thought-export': ThoughtExport, 'how-it-works': HowItWorks,
   notifications: NotificationsLog,
   admin: AdminDashboard, legal: Legal,
-  'map-my-mind': MapMyMind, 'smart-dashboard': SmartDashboard,
+  'map-my-mind': MapMyMind,  'smart-dashboard': SmartDashboard,
+  'cognitive-sprints': CognitiveSprints,
+  achievements: Achievements,
   profile: Profile,
 };
 
@@ -92,6 +98,7 @@ function buildWheelPages() {
   const order = [
     'home', 'dashboard', 'interactive-space', 'map-my-mind', 'mission-control',
     'how-it-works',
+    'cognitive-sprints', 'achievements',
     'thought-afterlife', 'commitments', 'brain-fragments', 'cognitive-load', 'predictive-load',
     'archaeology', 'memory-segments',
     'memory', 'thought-export', 'api-keys', 'channels', 'credits', 'notifications',
